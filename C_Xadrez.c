@@ -49,7 +49,19 @@ int main ()
         } while (!origem_valida(tab, origem));
         
         int movep[tab.linhas][tab.colunas];
+        
+                    //Del later
         movimentos_possiveis(&tab, origem, movep);
+        printf ("\n\n");
+        int i, j;
+        for (i = 0; i < 8; i++)
+        {
+            for (j = 0; j < 8; j++)
+            {
+                printf ("%d  ", movep[i][j]);
+            }
+            printf("\n");    
+        }
         
         printf ("\n\nDestino: ");
         posicao destino;
@@ -59,18 +71,7 @@ int main ()
         if (destino_valido (tab, destino))
         {
             realiza_jogada (&tab, origem, destino);
-        
             //print_tab (tab);
-            //Del later
-            printf ("\n\n");
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    printf ("%d  ", movep[i][j]);
-                }
-                printf("\n");
-            }
         }
     }
     
