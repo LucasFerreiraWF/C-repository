@@ -190,6 +190,17 @@ void movimentos_possiveis (tabuleiro *tab, posicao pos, int movimentos_possiveis
                 
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
         }
+
+        //esquerda
+        for (i = 1; i <= pos.coluna; i++)
+        {
+            posicao pos_teste = {pos.linha, pos.coluna - i};
+
+            if (tab->mat[pos_teste.linha][pos_teste.coluna].nome != '-')
+                break;
+
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        }
         break;
     
         case 'C':
