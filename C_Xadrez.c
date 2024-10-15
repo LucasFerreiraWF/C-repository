@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct posicao
 {
@@ -26,7 +27,7 @@ void montar_tabuleiro (tabuleiro *tab);
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 int origem_valida (tabuleiro tab, posicao pos);
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
-posicao to_position (char cpos[3], int x);
+posicao to_position (char cpos[3]);
 
 int main ()
 {
@@ -39,19 +40,18 @@ int main ()
     while (is_playing)
     {
         char origem[3];
-        int x = 0;
         do
         {
             print_tab (tab);
             printf ("\n\nOrigem (LxC): ");
             /*scanf("%d%d", &origem.linha, &origem.coluna);*/
             scanf ("%s", origem);
-        } while (!origem_valida(tab, to_position(origem, x)));
+        } while (!origem_valida(tab, to_position(origem)));
         
         int movep[tab.linhas][tab.colunas];
         
                     //Del later
-        movimentos_possiveis(tab, to_position(origem, x), movep);
+        movimentos_possiveis(tab, to_position(origem), movep);
         printf ("\n\n");
         int i, j;
         for (i = 0; i < 8; i++)
@@ -69,7 +69,7 @@ int main ()
         scanf("%d", &destino.coluna);
         
         if (destino_valido (tab, destino, movep))
-            realiza_jogada (&tab, to_position(origem, x), destino);
+            realiza_jogada (&tab, to_position(origem), destino);
         else
             printf ("Destino Invalido! \n\n");    
     }
@@ -227,7 +227,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
     }
 }
     
-posicao to_position (char cpos[3], int x)
+posicao to_position (char cpos[3])
 {
     posicao new_pos;
     
@@ -262,8 +262,8 @@ posicao to_position (char cpos[3], int x)
         break;
     }
 
-    printf ("%c\n\n", cpos[1]);
-    x = cpos[1] - '0';
+    char temp[2] = {cpos[1], '\0'};
+    int x = atoi(temp);
     new_pos.linha = 8 - x;
 
     return new_pos;
