@@ -26,7 +26,7 @@ void montar_tabuleiro (tabuleiro *tab);
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 int origem_valida (tabuleiro tab, posicao pos);
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
-posicao to_position (char cpos[3]);
+posicao to_position (char cpos[3], int x);
 
 int main ()
 {
@@ -38,20 +38,20 @@ int main ()
     
     while (is_playing)
     {
-        posicao origem;
+        char origem[3];
+        int x = 0;
         do
         {
             print_tab (tab);
             printf ("\n\nOrigem (LxC): ");
             /*scanf("%d%d", &origem.linha, &origem.coluna);*/
-            char origem[3];
-            scanf ("%s", &origem);
-        } while (!origem_valida(tab, origem));
+            scanf ("%s", origem);
+        } while (!origem_valida(tab, to_position(origem, x)));
         
         int movep[tab.linhas][tab.colunas];
         
                     //Del later
-        movimentos_possiveis(tab, origem, movep);
+        movimentos_possiveis(tab, to_position(origem, x), movep);
         printf ("\n\n");
         int i, j;
         for (i = 0; i < 8; i++)
@@ -69,7 +69,7 @@ int main ()
         scanf("%d", &destino.coluna);
         
         if (destino_valido (tab, destino, movep))
-            realiza_jogada (&tab, origem, destino);
+            realiza_jogada (&tab, to_position(origem, x), destino);
         else
             printf ("Destino Invalido! \n\n");    
     }
@@ -162,7 +162,7 @@ int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     int i, j;
-    posicao pos_original = pos;
+    //posicao pos_original = pos;
     char nome = tab.mat[pos.linha][pos.coluna].nome;
     
     for (i = 0; i < tab.linhas; i++)
@@ -227,7 +227,44 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
     }
 }
     
-posicao to_position (char cpos[3])
+posicao to_position (char cpos[3], int x)
 {
-    if (cpos[1] )
+    posicao new_pos;
+    
+    switch (cpos[0])
+    {
+        case 'a':
+            new_pos.coluna = 0;
+        break;
+        case 'b':
+            new_pos.coluna = 1;
+        break;
+        case 'c':
+            new_pos.coluna = 2;
+        break;
+        case 'd':
+            new_pos.coluna = 3;
+        break;
+        case 'e':
+            new_pos.coluna = 4;
+        break;
+        case 'f':
+            new_pos.coluna = 5;
+        break;
+        case 'g':
+            new_pos.coluna = 6;
+        break;
+        case 'h':
+            new_pos.coluna = 7;
+        break;
+        default:
+        new_pos.coluna = -1;
+        break;
+    }
+
+    printf ("%c\n\n", cpos[1]);
+    x = cpos[1] - '0';
+    new_pos.linha = 8 - x;
+
+    return new_pos;
 }    
