@@ -53,18 +53,21 @@ int main ()
 
         int movep[tab.linhas][tab.colunas];
 
-        //Del later
         movimentos_possiveis(tab, to_position(origem), movep);
+
+        //Del later
         printf ("\n\n");
         int i, j;
         for (i = 0; i < 8; i++)
         {
+            printf ("(%d) ", 8 - i);
             for (j = 0; j < 8; j++)
             {
                 printf ("%d  ", movep[i][j]);
             }
             printf("\n");
         }
+        printf ("    a  b  c  d  e  f  g  h");
 
         printf ("\n\nDestino: ");
         posicao destino;
@@ -143,7 +146,7 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, (posicao) {3, 3}, (peca) {'T', 'b'});
     colocar_peca (tab, (posicao) {2, 4}, (peca) {'P', 'p'});
     colocar_peca (tab, (posicao) {3, 7}, (peca) {'P', 'p'});
-    colocar_peca (tab, to_position("d4\0"), (peca) {'B', 'b'});
+    colocar_peca (tab, to_position("d4\0"), (peca) {'D', 'b'});
 }
 
 int origem_valida (tabuleiro tab, posicao pos)
@@ -195,7 +198,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         
     case 'D':
         movimentos_torre (tab, pos, movimentos_possiveis);
-        //movimentos_bispo
+        movimentos_bispo (tab, pos, movimentos_possiveis);
         break;    
     }
 }
@@ -203,8 +206,8 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
 posicao to_position (char cpos[3])
 {
     posicao new_pos;
-    char ccol = cpos[0];
-    new_pos.coluna = (int)(ccol - 'a');
+    char char_coluna = cpos[0];
+    new_pos.coluna = (int)(char_coluna - 'a');
 
     /*switch (cpos[0])
     {
@@ -237,8 +240,8 @@ posicao to_position (char cpos[3])
         break;
     }*/
 
-    char temp[2] = {cpos[1], '\0'};
-    int x = atoi(temp); //ASCII to Int (stdlib)
+    char char_linha[2] = {cpos[1], '\0'};
+    int x = atoi(char_linha); //ASCII to Int (stdlib)
     new_pos.linha = 8 - x;
 
     return new_pos;
@@ -298,24 +301,46 @@ void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
     int i, j;
     
     //cima - direita
-    for (i = 1, j = 1; i < (8 - pos.coluna) && j <= pos.linha; i++, j++)
+    for (i = 1, j = 1; i <= pos.linha && j < (8 - pos.coluna); i++, j++)
     {
-        posicao pos_teste = {pos.linha - i, pos.coluna + i};
+        posicao pos_teste = {pos.linha - i, pos.coluna + j};
         if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
             break;
             
         movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
     
-    //baixo direita
-    for (i = 1, j = 1; i < (8 - pos.coluna) && j < (8 - pos.linha); i++)
+    //baixo - direita
+    for (i = 1, j = 1; i < (8 - pos.linha) && j < (8 - pos.coluna); i++, j++)
     {
-        posicao pos_teste = {pos.linha + i, pos.coluna - j};
+        posicao pos_teste = {pos.linha + i, pos.coluna + j};
         
         if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
             break;
             
         movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+    }
+
+    //baixo - esquerda
+    for (i = 1, j = 1; i < (8 - pos.linha) && j <= pos.coluna; i++, j++)
+    {
+        posicao pos_teste = {pos.linha + i, pos.coluna - j};
+
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
+            break;
+
+        movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+    }
+
+    //cima - esquerda
+    for (i = 1, j = 1; i <= (pos.linha) && j <= (pos.coluna); i++, j++)
+    {
+        posicao pos_teste = {pos.linha - i, pos.coluna - j};
+
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
+            break;
+
+        movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
 }
     
