@@ -31,6 +31,8 @@ posicao to_position (char cpos[3]);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
 int main ()
 {
@@ -48,6 +50,7 @@ int main ()
             print_tab (tab);
             printf ("\n\nOrigem (LxC): ");
             /*scanf("%d%d", &origem.linha, &origem.coluna);*/
+            setbuf (stdin, NULL);
             scanf ("%s", origem);
         } while (!origem_valida(tab, to_position(origem)));
 
@@ -56,7 +59,7 @@ int main ()
         movimentos_possiveis(tab, to_position(origem), movep);
 
         //Del later
-        printf ("\n\n");
+        /*printf ("\n\n");
         int i, j;
         for (i = 0; i < 8; i++)
         {
@@ -67,15 +70,15 @@ int main ()
             }
             printf("\n");
         }
-        printf ("    a  b  c  d  e  f  g  h");
+        printf ("    a  b  c  d  e  f  g  h");*/
 
         printf ("\n\nDestino: ");
-        posicao destino;
-        scanf("%d", &destino.linha);
-        scanf("%d", &destino.coluna);
+        char destino[3];
+        setbuf (stdin, NULL);
+        scanf ("%s", destino);
 
-        if (destino_valido (tab, destino, movep))
-            realiza_jogada (&tab, to_position(origem), destino);
+        if (destino_valido (tab, to_position(destino), movep))
+            realiza_jogada (&tab, to_position(origem), to_position(destino));
         else
             printf ("Destino Invalido! \n\n");
     }
