@@ -28,6 +28,8 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
 int origem_valida (tabuleiro tab, posicao pos);
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 posicao to_position (char cpos[3]);
+int matriz_vazia (int matriz[8][8]);
+void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -70,17 +72,28 @@ int main ()
             }
             printf("\n");
         }
-        printf ("    a  b  c  d  e  f  g  h");*/
-
-        printf ("\n\nDestino: ");
-        char destino[3];
-        setbuf (stdin, NULL);
-        scanf ("%s", destino);
-
-        if (destino_valido (tab, to_position(destino), movep))
-            realiza_jogada (&tab, to_position(origem), to_position(destino));
+        printf ("    a  b  c  d  e  f  g  h\n\n");*/
+        
+        
+        if (matriz_vazia(movep))
+            printf ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
         else
-            printf ("Destino Invalido! \n\n");
+        {
+            printf ("\n\n");
+            print_movimentos_possiveis (tab, movimentos_possiveis);
+            printf ("\n\nDestino: ");
+            char destino[3];
+            setbuf (stdin, NULL);
+            scanf ("%s", destino);
+
+            if (destino_valido (tab, to_position(destino), movep))
+            {
+                printf ("\n\n");
+                realiza_jogada (&tab, to_position(origem), to_position(destino));
+            }
+            else
+                printf ("Destino Invalido! \n\n");
+        }
     }
 
     return 0;
@@ -150,6 +163,7 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, (posicao) {2, 4}, (peca) {'P', 'p'});
     colocar_peca (tab, (posicao) {3, 7}, (peca) {'P', 'p'});
     colocar_peca (tab, to_position("d4\0"), (peca) {'D', 'b'});
+    colocar_peca (tab, to_position("e2\0"), (peca) {'C', 'b'});
 }
 
 int origem_valida (tabuleiro tab, posicao pos)
@@ -175,7 +189,6 @@ int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     int i, j;
-    //posicao pos_original = pos;
     char nome = tab.mat[pos.linha][pos.coluna].nome;
 
     for (i = 0; i < tab.linhas; i++)
@@ -193,6 +206,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         break;
 
     case 'C':
+        movimentos_cavalo (tab, pos, movimentos_possiveis);
         break;
         
     case 'B':   
@@ -212,42 +226,32 @@ posicao to_position (char cpos[3])
     char char_coluna = cpos[0];
     new_pos.coluna = (int)(char_coluna - 'a');
 
-    /*switch (cpos[0])
-    {
-    case 'a':
-        new_pos.coluna = 0;
-        break;
-    case 'b':
-        new_pos.coluna = 1;
-        break;
-    case 'c':
-        new_pos.coluna = 2;
-        break;
-    case 'd':
-        new_pos.coluna = 3;
-        break;
-    case 'e':
-        new_pos.coluna = 4;
-        break;
-    case 'f':
-        new_pos.coluna = 5;
-        break;
-    case 'g':
-        new_pos.coluna = 6;
-        break;
-    case 'h':
-        new_pos.coluna = 7;
-        break;
-    default:
-        new_pos.coluna = -1;
-        break;
-    }*/
-
     char char_linha[2] = {cpos[1], '\0'};
     int x = atoi(char_linha); //ASCII to Int (stdlib)
     new_pos.linha = 8 - x;
 
     return new_pos;
+}
+
+int matriz_vazia (int matriz[8][8])
+{
+    int i, j;
+    
+    for (i = 0; i < 8; i++)
+    {
+        for(j = 0; j < 8; j++)
+        {
+           if (matriz[i][j] == 1)
+           {
+               //printf ("\n\nUm!!!");
+               return 0;
+           }
+           //else
+              //printf ("\n\n%d", matriz[i][j]);
+        }       
+    }
+    
+    return 1;
 }
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
@@ -346,4 +350,47 @@ void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
         movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
 }
+
+void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+{
+    int i, j;
     
+    //2cima 1direita
+    posicao pos_teste = {pos.linha - 2, pos.coluna + 1};
+    if (pos_teste.linha >= 0 && pos_teste.coluna <= 7)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+     
+    //2direita 1 cima    
+    //pos_teste = {pos.linha - 1, pos.coluna + 2};
+    pos_teste.linha = pos.linha - 1;
+    pos_teste.coluna = pos.coluna + 2;
+    if (pos_teste.linha >= 0 && pos_teste.coluna <= 7)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+}
+    
+    
+void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
+{
+    int i, j;
+    char vazio = '-';
+    char vazio_movep = '_';
+
+    for (i = 0; i < tab.linhas; i++)
+    {
+        printf ("%d ", 8 - i);
+        for (j = 0; j < tab.colunas; j++)
+        {
+            if (tab.mat[i][j].nome != '-')
+                printf ("%c%c ", tab.mat[i][j].nome, tab.mat[i][j].cor);
+            else if (movimentos_possiveis[i][j] == 1)
+                printf ("%c  ", vazio_movep);
+            else    
+                printf ("%c  ", vazio);
+        }
+        printf ("\n");
+    }
+
+    printf ("  a  b  c  d  e  f  g  h");
+}
