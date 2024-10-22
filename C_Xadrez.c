@@ -18,11 +18,13 @@ typedef struct tabuleiro
     peca mat[8][8];
 } tabuleiro;
 
+void confirmacao (char string[100]);
+
 void clear_tab (tabuleiro *tab);
 void print_tab (tabuleiro tab);
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca);
 peca remover_peca (tabuleiro *tab, posicao pos);
-void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino);
+void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
 void montar_tabuleiro (tabuleiro *tab);
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 int origem_valida (tabuleiro tab, posicao pos);
@@ -30,6 +32,7 @@ int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 posicao to_position (char cpos[3]);
 int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
+char troca_jogador_atual (char *jogador_atual);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -40,6 +43,7 @@ int main ()
 {
     int is_playing = 1;
     tabuleiro tab = {8, 8};
+    char jogador_atual = 'b';
 
     clear_tab (&tab);
     montar_tabuleiro (&tab);
@@ -49,6 +53,8 @@ int main ()
         char origem[3];
         do
         {
+            //não sei como, mas isso limpa o console
+            printf("\e[1;1H\e[2J\n");
             print_tab (tab);
             printf ("\n\nOrigem (LxC): ");
             /*scanf("%d%d", &origem.linha, &origem.coluna);*/
@@ -89,10 +95,10 @@ int main ()
             if (destino_valido (tab, to_position(destino), movep))
             {
                 printf ("\n\n");
-                realiza_jogada (&tab, to_position(origem), to_position(destino));
+                realiza_jogada (&tab, to_position(origem), to_position(destino), &jogador_atual);
             }
             else
-                printf ("Destino Invalido! \n\n");
+                confirmacao ("Destino invalido! \nPressione Enter:");
         }
     }
 
@@ -149,12 +155,14 @@ peca remover_peca (tabuleiro *tab, posicao pos)
     return retirada;
 }
 
-void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino)
+void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual)
 {
     peca peca_origem = remover_peca (tab, origem);
     peca peca_destino = remover_peca (tab, destino);
 
     colocar_peca (tab, destino, peca_origem);
+    
+    troca_jogador_atual (jogador_atual);
 }
 
 void montar_tabuleiro (tabuleiro *tab)
@@ -242,12 +250,7 @@ int matriz_vazia (int matriz[8][8])
         for(j = 0; j < 8; j++)
         {
            if (matriz[i][j] == 1)
-           {
-               //printf ("\n\nUm!!!");
                return 0;
-           }
-           //else
-              //printf ("\n\n%d", matriz[i][j]);
         }       
     }
     
@@ -393,4 +396,21 @@ void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
     }
 
     printf ("  a  b  c  d  e  f  g  h");
+}
+
+void confirmacao (char string[100])
+{
+    printf ("%s", string);
+    char lixo[50];
+    setbuf (stdin, NULL);
+    fgets (lixo, 50, stdin);
+    printf ("\n\n");
+}
+
+char troca_jogador_atual (char *jogador_atual)
+{
+    if (jogador_atual == 'b')
+        *jogador_atual = 'p';
+    else
+        *jogador_atual = 'b';
 }
