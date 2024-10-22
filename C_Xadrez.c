@@ -27,12 +27,12 @@ peca remover_peca (tabuleiro *tab, posicao pos);
 void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
 void montar_tabuleiro (tabuleiro *tab);
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
-int origem_valida (tabuleiro tab, posicao pos);
+int origem_valida (tabuleiro tab, posicao pos, char jogador_atual);
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 posicao to_position (char cpos[3]);
 int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
-char troca_jogador_atual (char *jogador_atual);
+void troca_jogador_atual (char *jogador_atual);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -60,7 +60,7 @@ int main ()
             /*scanf("%d%d", &origem.linha, &origem.coluna);*/
             setbuf (stdin, NULL);
             scanf ("%s", origem);
-        } while (!origem_valida(tab, to_position(origem)));
+        } while (!origem_valida(tab, to_position(origem), jogador_atual));
 
         int movep[tab.linhas][tab.colunas];
 
@@ -85,7 +85,7 @@ int main ()
         else
         {
             printf ("\n\n");
-            print_movimentos_possiveis (tab, movimentos_possiveis);
+            //print_movimentos_possiveis (tab, movep);
             printf ("\n\nDestino: ");
             char destino[3];
             setbuf (stdin, NULL);
@@ -145,8 +145,7 @@ void colocar_peca (tabuleiro *tab, posicao pos, peca peca)
 
 peca remover_peca (tabuleiro *tab, posicao pos)
 {
-    peca peca_null;
-    peca_null.nome = '-';
+    peca peca_null = {'-', '-'};
 
     peca retirada = tab->mat[pos.linha][pos.coluna];
     tab->mat[pos.linha][pos.coluna] = peca_null;
@@ -173,13 +172,25 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, to_position("e2\0"), (peca) {'C', 'b'});
 }
 
-int origem_valida (tabuleiro tab, posicao pos)
+int origem_valida (tabuleiro tab, posicao pos, char jogador_atual)
 {
-    if (pos.linha >= 0 && pos.linha < 8 && pos.coluna >= 0 && pos.coluna < 8)
-        if (tab.mat[pos.linha][pos.coluna].nome != '-')
-            return 1;
-
-    return 0;
+    if (tab.mat[pos.linha][pos.coluna].nome == '-')
+    {
+        confirmacao ("Nao ha peca na origem escolhida! \nPressione Enter:");
+        return 0;
+    }
+    else if (jogador_atual != tab.mat[pos.linha][pos.coluna].cor)
+    {
+        confirmacao ("A peca escolhida nao pertence a voce! \nPressione Enter:");
+        return 0;
+    }
+    else if (pos.linha < 0 && pos.linha >= 8 && pos.coluna < 0 && pos.coluna >= 8)
+    {
+        confirmacao ("Origem invalida! \nPressione Enter:");
+        return 0;
+    }
+    
+    return 1;
 }
 
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
@@ -445,7 +456,7 @@ void confirmacao (char string[100])
     printf ("\n\n");
 }
 
-char troca_jogador_atual (char *jogador_atual)
+void troca_jogador_atual (char *jogador_atual)
 {
     if (jogador_atual == 'b')
         *jogador_atual = 'p';
