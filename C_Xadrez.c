@@ -80,7 +80,6 @@ int main ()
         }
         printf ("    a  b  c  d  e  f  g  h\n\n");*/
         
-        
         if (matriz_vazia(movep))
             printf ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
         else
@@ -356,19 +355,58 @@ void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
 
 void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    int i, j;
-    
     //2cima 1direita
     posicao pos_teste = {pos.linha - 2, pos.coluna + 1};
-    if (pos_teste.linha >= 0 && pos_teste.coluna <= 7)
+    if (pos_teste.linha >= 0 && pos_teste.coluna < 8)
         if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
      
-    //2direita 1 cima    
-    //pos_teste = {pos.linha - 1, pos.coluna + 2};
+    //1cima 2direita     
     pos_teste.linha = pos.linha - 1;
     pos_teste.coluna = pos.coluna + 2;
-    if (pos_teste.linha >= 0 && pos_teste.coluna <= 7)
+    if (pos_teste.linha >= 0 && pos_teste.coluna < 8)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //1baixo 2direita   
+    pos_teste.linha = pos.linha + 1;
+    pos_teste.coluna = pos.coluna + 2;
+    if (pos_teste.linha < 8 && pos_teste.coluna < 8)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //2baixo 1direita   
+    pos_teste.linha = pos.linha + 2;
+    pos_teste.coluna = pos.coluna + 1;
+    if (pos_teste.linha < 8 && pos_teste.coluna < 8)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //2baixo 1esquerda
+    pos_teste.linha = pos.linha + 2;
+    pos_teste.coluna = pos.coluna - 1;
+    if (pos_teste.linha < 8 && pos_teste.coluna >= 0)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //1baixo 2esquerda
+    pos_teste.linha = pos.linha + 1;
+    pos_teste.coluna = pos.coluna - 2;
+    if (pos_teste.linha < 8 && pos_teste.coluna >= 0)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //1cima 2esquerda
+    pos_teste.linha = pos.linha - 1;
+    pos_teste.coluna = pos.coluna - 2;
+    if (pos_teste.linha >= 0 && pos_teste.coluna >= 0)
+        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    //2cima 1esquerda
+    pos_teste.linha = pos.linha - 2;
+    pos_teste.coluna = pos.coluna - 1;
+    if (pos_teste.linha >= 0 && pos_teste.coluna >= 0)
         if (tab.mat[pos_teste.linha][pos_teste.coluna].nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
 }
