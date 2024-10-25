@@ -33,6 +33,7 @@ posicao to_position (char cpos[3]);
 int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
 void troca_jogador_atual (char *jogador_atual);
+int is_king (peca peca);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -53,11 +54,14 @@ int main ()
         char origem[3];
         do
         {
-            //não sei como, mas isso limpa o console
+            //limpar console mobile
             printf("\e[1;1H\e[2J\n");
+            //limpar console windows
+            system ("cls");
+
             print_tab (tab);
-            printf ("\n\nOrigem (LxC): ");
-            /*scanf("%d%d", &origem.linha, &origem.coluna);*/
+            printf ("\n\nJogador atual: %c", jogador_atual);
+            printf ("\nOrigem (LxC): ");
             setbuf (stdin, NULL);
             scanf ("%s", origem);
         } while (!origem_valida(tab, to_position(origem), jogador_atual));
@@ -84,9 +88,8 @@ int main ()
             printf ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
         else
         {
-            printf ("\n\n");
             //print_movimentos_possiveis (tab, movep);
-            printf ("\n\nDestino: ");
+            printf ("\nDestino: ");
             char destino[3];
             setbuf (stdin, NULL);
             scanf ("%s", destino);
@@ -179,7 +182,7 @@ int origem_valida (tabuleiro tab, posicao pos, char jogador_atual)
         confirmacao ("Nao ha peca na origem escolhida! \nPressione Enter:");
         return 0;
     }
-    else if (jogador_atual != tab.mat[pos.linha][pos.coluna].cor)
+    else if (tab.mat[pos.linha][pos.coluna].cor != jogador_atual)
     {
         confirmacao ("A peca escolhida nao pertence a voce! \nPressione Enter:");
         return 0;
@@ -202,6 +205,35 @@ int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
     }
 
     return 0;
+}
+
+posicao to_position (char cpos[3])
+{
+    posicao new_pos;
+    char char_coluna = cpos[0];
+    new_pos.coluna = (int)(char_coluna - 'a');
+
+    char char_linha[2] = {cpos[1], '\0'};
+    int x = atoi(char_linha); //ASCII to Int (stdlib)
+    new_pos.linha = 8 - x;
+
+    return new_pos;
+}
+
+int matriz_vazia (int matriz[8][8])
+{
+    int i, j;
+    
+    for (i = 0; i < 8; i++)
+    {
+        for(j = 0; j < 8; j++)
+        {
+           if (matriz[i][j] == 1)
+               return 0;
+        }       
+    }
+    
+    return 1;
 }
 
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
@@ -238,45 +270,17 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
     }
 }
 
-posicao to_position (char cpos[3])
-{
-    posicao new_pos;
-    char char_coluna = cpos[0];
-    new_pos.coluna = (int)(char_coluna - 'a');
-
-    char char_linha[2] = {cpos[1], '\0'};
-    int x = atoi(char_linha); //ASCII to Int (stdlib)
-    new_pos.linha = 8 - x;
-
-    return new_pos;
-}
-
-int matriz_vazia (int matriz[8][8])
-{
-    int i, j;
-    
-    for (i = 0; i < 8; i++)
-    {
-        for(j = 0; j < 8; j++)
-        {
-           if (matriz[i][j] == 1)
-               return 0;
-        }       
-    }
-    
-    return 1;
-}
-
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    int i, j;
+    int i;
 
     //direita
     for (i = 1; i < (8 - pos.coluna); i++)
     {
         posicao pos_teste = {pos.linha, pos.coluna + i};
 
-        if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
+        char nome = tab.mat[pos_teste.linha][pos_teste.coluna].nome;
+        if (nome != 'R')
             break;
 
         movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
@@ -458,8 +462,16 @@ void confirmacao (char string[100])
 
 void troca_jogador_atual (char *jogador_atual)
 {
-    if (jogador_atual == 'b')
+    if (*jogador_atual == 'b')
         *jogador_atual = 'p';
     else
         *jogador_atual = 'b';
+}
+
+int is_king (peca peca)
+{
+    if (peca.nome == 'R')
+        return 1;
+
+    return 0;
 }
