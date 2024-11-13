@@ -59,9 +59,9 @@ int main ()
         do
         {
             //limpar console mobile
-            //printf("\e[1;1H\e[2J\n");
+            printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            system ("cls");
+            //system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -304,11 +304,16 @@ void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
     for (i = 1; i < (8 - pos.coluna); i++)
     {
         posicao pos_teste = {pos.linha, pos.coluna + i};
+        peca torre = tab.mat[pos.linha][pos.coluna];
+        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
-        /*if (tab.mat[pos_teste.linha][pos_teste.coluna].nome != '-')
-            break;*/
-
-        movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        if (peca_teste.nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        else if(peca_teste.cor != torre.cor)  
+        {   
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+            break;
+        }
     }
 
     //esquerda
@@ -353,44 +358,64 @@ void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
     for (i = 1, j = 1; i <= pos.linha && j < (8 - pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha - i, pos.coluna + j};
-        peca torre = tab.mat[pos.linha][pos.coluna];
+        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
-        if (peca_teste.nome != '-' && peca_teste.cor != torre.cor)     
-            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1; 
+        if (peca_teste.nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        else if(peca_teste.cor != bispo.cor)  
+        {   
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+            break;
+        }
     }
     
     //baixo - direita
     for (i = 1, j = 1; i < (8 - pos.linha) && j < (8 - pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha + i, pos.coluna + j};
-        peca torre = tab.mat[pos.linha][pos.coluna];
+        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
-        if (peca_teste.nome != '-' && peca_teste.cor != torre.cor)     
+        if (peca_teste.nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        else if(peca_teste.cor != bispo.cor)  
+        {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+            break;
+        }
     }
 
     //baixo - esquerda
     for (i = 1, j = 1; i < (8 - pos.linha) && j <= pos.coluna; i++, j++)
     {
         posicao pos_teste = {pos.linha + i, pos.coluna - j};
-        peca torre = tab.mat[pos.linha][pos.coluna];
+        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
-        if (peca_teste.nome != '-' && peca_teste.cor != torre.cor)     
-            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1; 
+        if (peca_teste.nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        else if(peca_teste.cor != bispo.cor)  
+        {   
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+            break;
+        }
     }
 
     //cima - esquerda
     for (i = 1, j = 1; i <= (pos.linha) && j <= (pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha - i, pos.coluna - j};
-        peca torre = tab.mat[pos.linha][pos.coluna];
+        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
-        if (peca_teste.nome != '-' && peca_teste.cor != torre.cor)     
-            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1; 
+        if (peca_teste.nome == '-')
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+        else if(peca_teste.cor != bispo.cor)  
+        {   
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
+            break;
+        }
     }
 }
 
@@ -400,8 +425,9 @@ void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][
     posicao pos_teste = {pos.linha - 2, pos.coluna + 1};
     if (!fora_dos_limites(pos_teste))
     {
-        /*peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-        if (!is_king(peca_teste))*/
+        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
+        
+        if (peca_teste.cor == 'a')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     } 
      
