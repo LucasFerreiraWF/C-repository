@@ -62,9 +62,9 @@ int main ()
         do
         {
             //limpar console mobile
-            //printf("\e[1;1H\e[2J\n");
+            printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            system ("cls");
+            //system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -303,7 +303,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         break;
         
     case 'R':
-        //movimentos_rei (tab, pos, movimentos_possiveis)
+        movimentos_rei (tab, pos, movimentos_possiveis)
         break;    
     }
 }
@@ -629,11 +629,6 @@ void movimentos_rei (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8]
     if (!fora_dos_limites(pos_teste))
     {
         peca peca_teste = tab->mat[pos_teste.linha][pos_teste.coluna];
-        if (!is_king(peca_teste))
-        {
-            //realiza_jogada(tab, pos, pos_teste, );
-            //if ()
-        }
     }
 }
     
@@ -686,11 +681,24 @@ int is_king (peca peca)
     return 0;
 }
 
-int esta_em_xeque (peca p, tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+int esta_em_xeque (peca p, tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    /*if (is_king(tab.mat[pos.linha][pos.coluna]))
-        if (matriz_vazia(movimentos_possiveis))
-            return 1;*/
+    int i, j;
+    
+    if (is_king(p))
+    {
+        for (i = 0; i < 8; i++)
+        {
+            for (j = 0; j < 8; j++)
+            {
+                peca temp = tab->mat[i][j];
+                if (temp.nome != '-' && temp.cor != p.cor)
+                {
+                    movimentos_possiveis (movimentos_possiveis);
+                }
+            }
+        }
+    }
     
     return 0;
 }
