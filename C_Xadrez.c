@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+int IS_PLAYING = 1;
 
 typedef struct posicao
 {
@@ -30,7 +31,7 @@ peca remover_peca (tabuleiro *tab, posicao pos);
 void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
 void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino, char *jogador_atual);
 void montar_tabuleiro (tabuleiro *tab);
-void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8], int limparMatriz);
 int origem_valida (tabuleiro tab, posicao pos, char jogador_atual);
 int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 posicao to_position (char cpos[3]);
@@ -45,18 +46,17 @@ void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_peao (peca peao, tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
-void movimentos_rei (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8]);
+void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
 int main ()
 {
-    int is_playing = 1;
     tabuleiro tab = {8, 8};
     char jogador_atual = 'b';
 
     clear_tab (&tab);
     montar_tabuleiro (&tab);
 
-    while (is_playing)
+    while (IS_PLAYING)
     {
         char origem[3];
         do
@@ -75,7 +75,7 @@ int main ()
 
         int movep[tab.linhas][tab.colunas];
 
-        movimentos_possiveis(tab, to_position(origem), movep);
+        movimentos_possiveis(tab, to_position(origem), movep, 1);
 
         //Del later
         printf ("\n\n");
@@ -266,16 +266,19 @@ int matriz_vazia (int matriz[8][8])
     return 1;
 }
 
-void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8], int limparMatriz)
 {
     int i, j;
     peca aux = tab.mat[pos.linha][pos.coluna];
 
-    for (i = 0; i < tab.linhas; i++)
+    if (limparMatriz)
     {
-        for (j = 0; j < tab.colunas; j++)
+        for (i = 0; i < tab.linhas; i++)
         {
-            movimentos_possiveis[i][j] = 0;
+            for (j = 0; j < tab.colunas; j++)
+            {
+                movimentos_possiveis[i][j] = 0;
+            }
         }
     }
 
@@ -623,12 +626,12 @@ void movimentos_peao (peca peao, tabuleiro tab, posicao pos, int movimentos_poss
     }
 }   
 
-void movimentos_rei (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8])
+void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     posicao pos_teste = {pos.linha - 1, pos.coluna + 1};
     if (!fora_dos_limites(pos_teste))
     {
-        peca peca_teste = tab->mat[pos_teste.linha][pos_teste.coluna];
+        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
     }
 }
     
@@ -681,12 +684,28 @@ int is_king (peca peca)
     return 0;
 }
 
-int esta_em_xeque (peca p, tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8])
+int esta_em_xeque (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8], char jogador_atual)
 {
     int i, j;
-    
-    if (is_king(p))
-    {
+    int existe_rei = 0;
+
+        for (i = 0; i < 8; i++)
+        {
+            for (j = 0; j < 8; j++)
+            {
+                if (tab->mat[i][j].cor == jogador_atual && tab->mat[i][j].nome == R)
+                    existe_rei = 1;
+            }
+        }
+
+        if (!existe_rei)
+        {
+            IS_PLAYING = 0;
+            char string[100] = {"Nao ha rei da cor %c", jogador_atual};
+            confirmacao (string);
+            return 0;
+        }
+
         for (i = 0; i < 8; i++)
         {
             for (j = 0; j < 8; j++)
@@ -694,11 +713,10 @@ int esta_em_xeque (peca p, tabuleiro *tab, posicao pos, int movimentos_possiveis
                 peca temp = tab->mat[i][j];
                 if (temp.nome != '-' && temp.cor != p.cor)
                 {
-                    movimentos_possiveis (movimentos_possiveis);
+                    
                 }
             }
         }
-    }
     
     return 0;
 }
