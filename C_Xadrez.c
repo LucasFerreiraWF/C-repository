@@ -39,7 +39,7 @@ int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
 void troca_jogador_atual (char *jogador_atual);
 int is_king (peca peca);
-int esta_em_xeque (peca p, tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+int esta_em_xeque (tabuleiro *tab, posicao pos, char jogador_atual);
 int fora_dos_limites (posicao pos);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -62,9 +62,9 @@ int main ()
         do
         {
             //limpar console mobile
-            printf("\e[1;1H\e[2J\n");
+            //printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            //system ("cls");
+            system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -163,13 +163,14 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
 
     colocar_peca (tab, destino, peca_origem);
     tab->mat[destino.linha][destino.coluna].qtd_movimentos++;
-    troca_jogador_atual (jogador_atual);
 
-    if (is_king(peca_destino))
+    if (is_king(peca_destino) || esta_em_xeque(tab, origem, *jogador_atual))
     {
         desfaz_jogada (tab, origem, destino, peca_origem, peca_destino, jogador_atual);
         return;
     }
+
+        troca_jogador_atual (jogador_atual);
 }
 
 void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino, char *jogador_atual)
@@ -177,7 +178,6 @@ void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_o
     colocar_peca (tab, origem, peca_origem);
     colocar_peca (tab, destino, peca_destino);
     tab->mat[destino.linha][destino.coluna].qtd_movimentos--;
-    troca_jogador_atual (jogador_atual);
 }
 
 void montar_tabuleiro (tabuleiro *tab)
@@ -306,8 +306,11 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         break;
         
     case 'R':
-        movimentos_rei (tab, pos, movimentos_possiveis)
-        break;    
+        movimentos_rei (tab, pos, movimentos_possiveis);
+        break;   
+
+    default:
+        break; 
     }
 }
 
@@ -684,27 +687,37 @@ int is_king (peca peca)
     return 0;
 }
 
-int esta_em_xeque (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8], char jogador_atual)
+int existe_rei (tabuleiro tab, char jogador_atual)
 {
     int i, j;
     int existe_rei = 0;
 
-        for (i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
         {
-            for (j = 0; j < 8; j++)
-            {
-                if (tab->mat[i][j].cor == jogador_atual && tab->mat[i][j].nome == R)
-                    existe_rei = 1;
-            }
+            peca p = tab.mat[i][j];
+            if (is_king(p) && p.cor == jogador_atual)
+                existe_rei = 1;
         }
+    }
+    
+    return existe_rei;
+}
 
-        if (!existe_rei)
+int esta_em_xeque (tabuleiro *tab, posicao pos, char jogador_atual)
+{
+    int matriz_teste[8][8];
+    movimentos_possiveis (*tab, pos, matriz_teste, 1);//limpar matriz
+    int i, j;
+    peca p = tab->mat[pos.linha][pos.coluna];
+
+        /*if (!existe_rei(*tab, jogador_atual))
         {
             IS_PLAYING = 0;
-            char string[100] = {"Nao ha rei da cor %c", jogador_atual};
-            confirmacao (string);
+            confirmacao ("Rei Faltando");
             return 0;
-        }
+        }*/
 
         for (i = 0; i < 8; i++)
         {
@@ -713,8 +726,19 @@ int esta_em_xeque (tabuleiro *tab, posicao pos, int movimentos_possiveis[8][8], 
                 peca temp = tab->mat[i][j];
                 if (temp.nome != '-' && temp.cor != p.cor)
                 {
-                    
+                    movimentos_possiveis (*tab, pos, matriz_teste, 0);//somar movimentos possiveis dos inimigos
                 }
+            }
+        }
+
+        for (i = 0; i < 8; i++)
+        {
+            for (j = 0; j < 8; j++)
+            {
+                peca teste_rei = tab->mat[i][j];
+                if (is_king(teste_rei) && teste_rei.cor == jogador_atual)
+                    if (matriz_teste[i][j] == 1)
+                        return 1;
             }
         }
     
