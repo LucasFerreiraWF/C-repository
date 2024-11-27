@@ -39,7 +39,8 @@ int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
 void troca_jogador_atual (char *jogador_atual);
 int is_king (peca peca);
-int esta_em_xeque (tabuleiro *tab, posicao pos, char jogador_atual);
+int existe_rei (tabuleiro tab, char jogador_atual);
+int esta_em_xeque (tabuleiro *tab, char jogador_atual);
 int fora_dos_limites (posicao pos);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -55,6 +56,13 @@ int main ()
 
     clear_tab (&tab);
     montar_tabuleiro (&tab);
+
+    if (!existe_rei(tab, jogador_atual))
+    {
+        IS_PLAYING = 0;
+        printf("Rei da cor '%c' faltando no tabuleiro!", jogador_atual);
+        confirmacao("");
+    }
 
     while (IS_PLAYING)
     {
@@ -164,7 +172,14 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
     colocar_peca (tab, destino, peca_origem);
     tab->mat[destino.linha][destino.coluna].qtd_movimentos++;
 
-    if (is_king(peca_destino) || esta_em_xeque(tab, origem, *jogador_atual))
+    if (esta_em_xeque(tab, *jogador_atual))
+    {
+        desfaz_jogada(tab, origem, destino, peca_origem, peca_destino, jogador_atual);
+        confirmacao("Voce nao pode se colocar em xeque!");
+        return;
+    }
+
+    if (is_king(peca_destino))
     {
         desfaz_jogada (tab, origem, destino, peca_origem, peca_destino, jogador_atual);
         return;
@@ -183,24 +198,36 @@ void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_o
 void montar_tabuleiro (tabuleiro *tab)
 {
     colocar_peca (tab, to_position("a1"), (peca) {'T', 'b', 0});
-    colocar_peca (tab, to_position("b1"), (peca) {'B', 'b', 0});
-    colocar_peca (tab, to_position("c1"), (peca) {'C', 'b', 0});
-    colocar_peca (tab, to_position("f1"), (peca) {'C', 'b', 0});
-    colocar_peca (tab, to_position("g1"), (peca) {'B', 'b', 0});
+    colocar_peca (tab, to_position("b1"), (peca) {'C', 'b', 0});
+    colocar_peca (tab, to_position("c1"), (peca) {'B', 'b', 0});
+    colocar_peca (tab, to_position("e1"), (peca) {'R', 'b', 0});
+    colocar_peca (tab, to_position("d1"), (peca) {'D', 'b', 0});
+    colocar_peca (tab, to_position("f1"), (peca) {'B', 'b', 0});
+    colocar_peca (tab, to_position("g1"), (peca) {'C', 'b', 0});
     colocar_peca (tab, to_position("h1"), (peca) {'T', 'b', 0});
     colocar_peca (tab, to_position("a2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("b2"), (peca) {'P', 'b', 0});
+    colocar_peca (tab, to_position("c2"), (peca) {'P', 'b', 0});
+    colocar_peca (tab, to_position("d2"), (peca) {'P', 'b', 0});
+    colocar_peca (tab, to_position("e2"), (peca) {'P', 'b', 0});
+    colocar_peca (tab, to_position("f2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("g2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("h2"), (peca) {'P', 'b', 0});
 
-    colocar_peca (tab, to_position("a5"), (peca) {'R', 'p', 0});
-
     colocar_peca (tab, to_position("a8"), (peca) {'T', 'p', 0});
-    colocar_peca (tab, to_position("b8"), (peca) {'B', 'p', 0});
-    colocar_peca (tab, to_position("g8"), (peca) {'B', 'p', 0});
+    colocar_peca (tab, to_position("b8"), (peca) {'C', 'p', 0});
+    colocar_peca (tab, to_position("c8"), (peca) {'B', 'p', 0});
+    colocar_peca (tab, to_position("e8"), (peca) {'R', 'p', 0});
+    colocar_peca (tab, to_position("d8"), (peca) {'D', 'p', 0});
+    colocar_peca (tab, to_position("f8"), (peca) {'B', 'p', 0});
+    colocar_peca (tab, to_position("g8"), (peca) {'C', 'p', 0});
     colocar_peca (tab, to_position("h8"), (peca) {'T', 'p', 0});
     colocar_peca (tab, to_position("a7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("b7"), (peca) {'P', 'p', 0});
+    colocar_peca (tab, to_position("c7"), (peca) {'P', 'p', 0});
+    colocar_peca (tab, to_position("d7"), (peca) {'P', 'p', 0});
+    colocar_peca (tab, to_position("e7"), (peca) {'P', 'p', 0});
+    colocar_peca (tab, to_position("f7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("g7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("h7"), (peca) {'P', 'p', 0});
 }
@@ -705,12 +732,11 @@ int existe_rei (tabuleiro tab, char jogador_atual)
     return existe_rei;
 }
 
-int esta_em_xeque (tabuleiro *tab, posicao pos, char jogador_atual)
+int esta_em_xeque (tabuleiro *tab, char jogador_atual)
 {
     int matriz_teste[8][8];
-    movimentos_possiveis (*tab, pos, matriz_teste, 1);//limpar matriz
+    movimentos_possiveis (*tab, (posicao){0, 0}, matriz_teste, 1);//limpar matriz
     int i, j;
-    peca p = tab->mat[pos.linha][pos.coluna];
 
         /*if (!existe_rei(*tab, jogador_atual))
         {
@@ -724,12 +750,21 @@ int esta_em_xeque (tabuleiro *tab, posicao pos, char jogador_atual)
             for (j = 0; j < 8; j++)
             {
                 peca temp = tab->mat[i][j];
-                if (temp.nome != '-' && temp.cor != p.cor)
+                if (temp.nome != '-' && temp.cor != jogador_atual)
                 {
-                    movimentos_possiveis (*tab, pos, matriz_teste, 0);//somar movimentos possiveis dos inimigos
+                    movimentos_possiveis (*tab, (posicao){i, j}, matriz_teste, 0);//somar movimentos possiveis dos inimigos
                 }
             }
         }
+
+        /*for (i = 0; i < 8; i++)
+        {
+            for (j = 0; j < 8; j++)
+            {
+                printf ("%d ", matriz_teste[i][j]);
+            }
+            printf("\n");
+        }*/
 
         for (i = 0; i < 8; i++)
         {
