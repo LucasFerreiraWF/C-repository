@@ -41,6 +41,8 @@ void troca_jogador_atual (char *jogador_atual);
 int is_king (peca peca);
 int existe_rei (tabuleiro tab, char jogador_atual);
 int esta_em_xeque (tabuleiro *tab, char jogador_atual);
+int teste_xeque_mate (tabuleiro *tab, char *jogador_atual);
+int teste_sair_xeque (tabuleiro *tab, matriz_teste[8][8], posicao origem, char *jogador_atual);
 int fora_dos_limites (posicao pos);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -70,9 +72,9 @@ int main ()
         do
         {
             //limpar console mobile
-            //printf("\e[1;1H\e[2J\n");
+            printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            system ("cls");
+            //system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -86,7 +88,7 @@ int main ()
         movimentos_possiveis(tab, to_position(origem), movep, 1);
 
         //Del later
-        printf ("\n\n");
+        /*printf ("\n\n");
         int i, j;
         for (i = 0; i < 8; i++)
         {
@@ -97,7 +99,7 @@ int main ()
             }
             printf("\n");
         }
-        printf ("    a  b  c  d  e  f  g  h\n\n");
+        printf ("    a  b  c  d  e  f  g  h\n\n");*/
         
         if (matriz_vazia(movep))
             confirmacao ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
@@ -116,6 +118,13 @@ int main ()
             }
             else
                 confirmacao ("Destino invalido! \nPressione Enter:");
+        }
+        
+        if (teste_xeque_mate(&tab, &jogador_atual))
+        {
+            printf ("\e[1;1H\e[2J\n");
+            confirmacao ("XEQUE MATE!");
+            IS_PLAYING = 0;
         }
     }
 
@@ -706,6 +715,15 @@ void troca_jogador_atual (char *jogador_atual)
         *jogador_atual = 'b';
 }
 
+int peca_inimiga (tabuleiro tab, posicao pos, char jogador_atual)
+{
+    if (tab.mat[pos.linha][pos.coluna].nome != '-')
+        if (tab.mat[pos.linha][pos.coluna].cor != jogador_atual)
+            return 1;
+            
+    return 0;       
+}
+
 int is_king (peca peca)
 {
     if (peca.nome == 'R')
@@ -735,7 +753,7 @@ int existe_rei (tabuleiro tab, char jogador_atual)
 int esta_em_xeque (tabuleiro *tab, char jogador_atual)
 {
     int matriz_teste[8][8];
-    movimentos_possiveis (*tab, (posicao){0, 0}, matriz_teste, 1);//limpar matriz
+    clear_tab(matriz_teste);//limpar matriz
     int i, j;
 
         /*if (!existe_rei(*tab, jogador_atual))
@@ -749,11 +767,8 @@ int esta_em_xeque (tabuleiro *tab, char jogador_atual)
         {
             for (j = 0; j < 8; j++)
             {
-                peca temp = tab->mat[i][j];
-                if (temp.nome != '-' && temp.cor != jogador_atual)
-                {
-                    movimentos_possiveis (*tab, (posicao){i, j}, matriz_teste, 0);//somar movimentos possiveis dos inimigos
-                }
+                if (peca_inimiga(*tab, (posicao){i, j}, jogador_atual))
+                    movimentos_possiveis (*tab, (posicao){i, j}, matriz_teste, 0);
             }
         }
 
@@ -778,6 +793,57 @@ int esta_em_xeque (tabuleiro *tab, char jogador_atual)
         }
     
     return 0;
+}
+
+int teste_xeque_mate (tabuleiro *tab, char *jogador_atual)
+{
+    int i, j;
+    int matriz_teste[tab->linhas][tab->colunas];
+    clear_tab(matriz_teste);
+    
+    if (!esta_em_xeque(tab, *jogador_atual));
+        return 0;
+        
+    for (i = 0; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            if (!peca_inimiga(*tab, (posicao){i,j}, *jogador_atual))
+            {
+                movimentos_possiveis (*tab, (posicao){i,j}, matriz_teste, 1);
+                if (teste_sair_xeque (tab, matriz_teste, (posicao){i,j}, jogador_atual))
+                    return 0;
+            }
+        }
+    }
+    
+    return 1;
+}    
+
+int teste_sair_xeque (tabuleiro *tab, matriz_teste[8][8], posicao origem, char *jogador_atual)
+{
+    int i, j;
+    int saiu_xeque = 0;
+    
+    peca peca_origem = tab->mat[origem.linha][origem.coluna];
+    
+    for (i = 0; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            if (matriz_teste[i][j])
+            {
+                peca peca_destino = tab->mat[i][j];
+                realiza_jogada (tab, origem, (posicao){i,j}, jogador_atual);
+                if (!esta_em_xeque(tab, *jogador_atual));
+                    saiu_xeque = 1;
+                    
+                desfaz_jogada (tab, origem, (posicao){i,j}, peca_origem, peca_destino, jogador_atual);
+            }
+        }
+    }    
+    
+    return saiu_xeque;
 }
 
 int fora_dos_limites (posicao pos)
