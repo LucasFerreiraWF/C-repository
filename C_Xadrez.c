@@ -29,11 +29,11 @@ void print_tab (tabuleiro tab);
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca);
 peca remover_peca (tabuleiro *tab, posicao pos);
 void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
-void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino, char *jogador_atual);
+void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino);
 void montar_tabuleiro (tabuleiro *tab);
 void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8], int limparMatriz);
 int origem_valida (tabuleiro tab, posicao pos, char jogador_atual);
-int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+int destino_valido (posicao pos, int movimentos_possiveis[8][8]);
 posicao to_position (char cpos[3]);
 int matriz_vazia (int matriz[8][8]);
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8]);
@@ -42,7 +42,8 @@ int is_king (peca peca);
 int existe_rei (tabuleiro tab, char jogador_atual);
 int esta_em_xeque (tabuleiro *tab, char jogador_atual);
 int teste_xeque_mate (tabuleiro *tab, char *jogador_atual);
-int teste_sair_xeque (tabuleiro *tab, matriz_teste[8][8], posicao origem, char *jogador_atual);
+void limpar_matriz (int matriz[8][8]);
+int teste_sair_xeque (tabuleiro *tab, int matriz_teste[8][8], posicao origem, char *jogador_atual);
 int fora_dos_limites (posicao pos);
 
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -72,9 +73,9 @@ int main ()
         do
         {
             //limpar console mobile
-            printf("\e[1;1H\e[2J\n");
+            //printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            //system ("cls");
+            system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -111,7 +112,7 @@ int main ()
             setbuf (stdin, NULL);
             scanf ("%s", destino);
 
-            if (destino_valido (tab, to_position(destino), movep))
+            if (destino_valido (to_position(destino), movep))
             {
                 printf ("\n\n");
                 realiza_jogada (&tab, to_position(origem), to_position(destino), &jogador_atual);
@@ -137,6 +138,14 @@ void clear_tab (tabuleiro *tab)
     for (i = 0; i < tab->linhas; i++)
         for (j = 0; j < tab->colunas; j++)
             tab->mat[i][j] = peca_null;
+}
+
+void limpar_matriz (int matriz[8][8])
+{
+    int i, j;
+    for (i = 0; i < 8; i++)
+        for (j = 0; j < 8; j++)
+            matriz[i][j] = 0;
 }
 
 void print_tab (tabuleiro tab)
@@ -183,21 +192,21 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
 
     if (esta_em_xeque(tab, *jogador_atual))
     {
-        desfaz_jogada(tab, origem, destino, peca_origem, peca_destino, jogador_atual);
+        desfaz_jogada(tab, origem, destino, peca_origem, peca_destino);
         confirmacao("Voce nao pode se colocar em xeque!");
         return;
     }
 
     if (is_king(peca_destino))
     {
-        desfaz_jogada (tab, origem, destino, peca_origem, peca_destino, jogador_atual);
+        desfaz_jogada (tab, origem, destino, peca_origem, peca_destino);
         return;
     }
 
         troca_jogador_atual (jogador_atual);
 }
 
-void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino, char *jogador_atual)
+void desfaz_jogada (tabuleiro *tab, posicao origem, posicao destino, peca peca_origem, peca peca_destino)
 {
     colocar_peca (tab, origem, peca_origem);
     colocar_peca (tab, destino, peca_destino);
@@ -262,7 +271,7 @@ int origem_valida (tabuleiro tab, posicao pos, char jogador_atual)
     return 1;
 }
 
-int destino_valido (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+int destino_valido (posicao pos, int movimentos_possiveis[8][8])
 {
     if (pos.linha >= 0 && pos.linha < 8 && pos.coluna >= 0 && pos.coluna < 8)
     {
@@ -753,7 +762,7 @@ int existe_rei (tabuleiro tab, char jogador_atual)
 int esta_em_xeque (tabuleiro *tab, char jogador_atual)
 {
     int matriz_teste[8][8];
-    clear_tab(matriz_teste);//limpar matriz
+    limpar_matriz(matriz_teste);//limpar matriz
     int i, j;
 
         /*if (!existe_rei(*tab, jogador_atual))
@@ -799,9 +808,9 @@ int teste_xeque_mate (tabuleiro *tab, char *jogador_atual)
 {
     int i, j;
     int matriz_teste[tab->linhas][tab->colunas];
-    clear_tab(matriz_teste);
+    limpar_matriz(matriz_teste);
     
-    if (!esta_em_xeque(tab, *jogador_atual));
+    if (!esta_em_xeque(tab, *jogador_atual))
         return 0;
         
     for (i = 0; i < 8; i++)
@@ -820,7 +829,7 @@ int teste_xeque_mate (tabuleiro *tab, char *jogador_atual)
     return 1;
 }    
 
-int teste_sair_xeque (tabuleiro *tab, matriz_teste[8][8], posicao origem, char *jogador_atual)
+int teste_sair_xeque (tabuleiro *tab, int matriz_teste[8][8], posicao origem, char *jogador_atual)
 {
     int i, j;
     int saiu_xeque = 0;
@@ -834,11 +843,12 @@ int teste_sair_xeque (tabuleiro *tab, matriz_teste[8][8], posicao origem, char *
             if (matriz_teste[i][j])
             {
                 peca peca_destino = tab->mat[i][j];
+                //dentro de realiza jogada, o movimento ja e desfeito!!!!
                 realiza_jogada (tab, origem, (posicao){i,j}, jogador_atual);
-                if (!esta_em_xeque(tab, *jogador_atual));
+                if (!esta_em_xeque(tab, *jogador_atual))
                     saiu_xeque = 1;
                     
-                desfaz_jogada (tab, origem, (posicao){i,j}, peca_origem, peca_destino, jogador_atual);
+                desfaz_jogada (tab, origem, (posicao){i,j}, peca_origem, peca_destino);
             }
         }
     }    
