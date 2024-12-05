@@ -76,9 +76,9 @@ int main ()
         do
         {
             //limpar console mobile
-            printf("\e[1;1H\e[2J\n");
+            //printf("\e[1;1H\e[2J\n");
             //limpar console windows
-            //system ("cls");
+            system ("cls");
 
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
@@ -109,7 +109,7 @@ int main ()
             confirmacao ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
         else
         {
-            //print_movimentos_possiveis (tab, movep);
+            print_movimentos_possiveis (tab, movep);
             printf ("\nDestino: ");
             char destino[3];
             setbuf (stdin, NULL);
@@ -126,8 +126,9 @@ int main ()
         
         if (teste_xeque_mate(&tab, &jogador_atual))
         {
-            //printf ("\e[1;1H\e[2J\n");
-            printf ("XEQUE MATE!");
+            system ("cls");
+            print_tab (tab);
+            printf ("\n\nXEQUE MATE!");
             troca_jogador_atual (&jogador_atual);
             printf ("\nVencedor: %c", jogador_atual);
             IS_PLAYING = 0;
@@ -162,15 +163,24 @@ void print_tab (tabuleiro tab)
         printf ("%d ", 8 - i);
         for (j = 0; j < tab.colunas; j++)
         {
-            if (tab.mat[i][j].nome != '-')
-                printf ("%c%c ", tab.mat[i][j].nome, tab.mat[i][j].cor);
+            peca p = tab.mat[i][j];
+            if (p.nome != '-')
+            {
+                if (p.cor == 'b')
+                    printf ("%c ", tab.mat[i][j].nome);
+                else
+                {
+                    printf("\e[33m%c ", p.nome);//Sequencia ANSI "33" amarelo;
+                    printf("\e[0m");// "\e[" inicia sequencia; "0m" reinicia cor padrao;
+                }
+            }
             else
-                printf ("%c  ", peca_null.nome);
+                printf ("%c ", peca_null.nome);
         }
         printf ("\n");
     }
 
-    printf ("  a  b  c  d  e  f  g  h");
+    printf ("  a b c d e f g h");
 }
 
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca)
@@ -709,11 +719,21 @@ void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
         {
             peca p = tab.mat[i][j];
             if (p.nome != '-')
-                printf ("%c%c ", p.nome, p.cor);
-            else if (movimentos_possiveis[i][j] == 1)
-                printf ("%c  ", vazio_movep);
-            else    
-                printf ("%c  ", vazio);
+            {
+                if (movimentos_possiveis[i][j])
+                {
+                    if (p.cor == 'b')
+                    {
+                        printf("\e[0;100m%c ", p.nome);
+                        printf("\e[0m");
+                    }
+                    else
+                    {
+                        printf("\e[33;100m%c ", p.nome);
+                        printf("\e[0m");
+                    }
+                }
+            }
         }
         printf ("\n");
     }
