@@ -75,11 +75,6 @@ int main ()
         char origem[3];
         do
         {
-            //limpar console mobile
-            //printf("\e[1;1H\e[2J\n");
-            //limpar console windows
-            system ("cls");
-
             print_tab (tab);
             printf ("\n\nJogador atual: %c", jogador_atual);
             printf ("\nOrigem (LxC): ");
@@ -157,6 +152,11 @@ void limpar_matriz (int matriz[8][8])
 void print_tab (tabuleiro tab)
 {
     int i, j;
+    
+    //limpar console mobile
+    printf("\e[1;1H\e[2J\n");
+    //limpar console windows
+    //system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -709,8 +709,10 @@ void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
 {
     int i, j;
-    char vazio = '-';
-    char vazio_movep = '_';
+    //limpar console mobile
+    printf("\e[1;1H\e[2J\n");
+    //limpar console windows
+    //system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -718,27 +720,36 @@ void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
         for (j = 0; j < tab.colunas; j++)
         {
             peca p = tab.mat[i][j];
-            if (p.nome != '-')
+            if (movimentos_possiveis[i][j])
             {
-                if (movimentos_possiveis[i][j])
+                if (p.cor == 'b' || p.nome == peca_null.nome)
                 {
-                    if (p.cor == 'b')
-                    {
-                        printf("\e[0;100m%c ", p.nome);
-                        printf("\e[0m");
-                    }
-                    else
-                    {
-                        printf("\e[33;100m%c ", p.nome);
-                        printf("\e[0m");
-                    }
+                    printf("\e[0;100m%c ", p.nome);
+                    printf("\e[0m");
                 }
-            }
+                else
+                {
+                    printf("\e[33;100m%c ", p.nome);
+                    printf("\e[0m");
+                }
+            }    
+            else
+            {
+                if (p.cor == 'b' || p.nome == peca_null.nome)
+                {
+                    printf("\e[0m%c ", p.nome);
+                }
+                else
+                {
+                    printf("\e[33m%c ", p.nome);
+                    printf("\e[0m");
+                }
+            }    
         }
         printf ("\n");
     }
 
-    printf ("  a  b  c  d  e  f  g  h");
+    printf ("  a b c d e f g h\n");
 }
 
 void confirmacao (char string[100])
@@ -814,15 +825,6 @@ int esta_em_xeque (tabuleiro *tab, char jogador_atual)
                     movimentos_possiveis (*tab, (posicao){i, j}, matriz_teste, 0);
             }
         }
-
-        /*for (i = 0; i < 8; i++)
-        {
-            for (j = 0; j < 8; j++)
-            {
-                printf ("%d ", matriz_teste[i][j]);
-            }
-            printf("\n");
-        }*/
 
         for (i = 0; i < 8; i++)
         {
