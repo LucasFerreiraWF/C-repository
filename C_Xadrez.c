@@ -870,8 +870,6 @@ int teste_sair_xeque (tabuleiro *tab, int matriz_teste[8][8], posicao origem, ch
     int i, j;
     int saiu_xeque = 0;
     
-    peca peca_origem = tab->mat[origem.linha][origem.coluna];
-    
     for (i = 0; i < 8; i++)
     {
         for (j = 0; j < 8; j++)
