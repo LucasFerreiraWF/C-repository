@@ -28,6 +28,7 @@ void clear_tab (tabuleiro *tab);
 void print_tab (tabuleiro tab);
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca);
 peca remover_peca (tabuleiro *tab, posicao pos);
+peca info_peca (tabuleiro tab, posicao pos);
 
 void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
 peca executa_movimento (tabuleiro *tab, posicao origem, posicao destino);
@@ -52,7 +53,7 @@ int fora_dos_limites (posicao pos);
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
-void movimentos_peao (peca peao, tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
 int main ()
@@ -195,6 +196,11 @@ peca remover_peca (tabuleiro *tab, posicao pos)
     tab->mat[pos.linha][pos.coluna] = peca_null;
 
     return retirada;
+}
+
+peca info_peca (tabuleiro tab, posicao pos)
+{
+    return tab.mat[pos.linha][pos.coluna];
 }
 
 peca executa_movimento (tabuleiro *tab, posicao origem, posicao destino)
@@ -370,7 +376,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         break;    
         
     case 'P':
-        movimentos_peao (aux, tab, pos, movimentos_possiveis);
+        movimentos_peao (tab, pos, movimentos_possiveis);
         break;
         
     case 'R':
@@ -627,8 +633,9 @@ void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8
 }
 
    
-void movimentos_peao (peca peao, tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
+    peca peao = tab.mat[pos.linha][pos.coluna];
     if (peao.cor == 'b')
     {
         //só anda se a casa a frente estiver vazia
@@ -699,10 +706,13 @@ void movimentos_peao (peca peao, tabuleiro tab, posicao pos, int movimentos_poss
 
 void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
+    peca rei = info_peca(tab, pos);
     posicao pos_teste = {pos.linha - 1, pos.coluna + 1};
     if (!fora_dos_limites(pos_teste))
     {
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
+        peca peca_teste = info_peca(tab, pos_teste);
+        if (peca_teste.nome == '-' || peca_teste.cor != rei.cor)
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
 }
     
