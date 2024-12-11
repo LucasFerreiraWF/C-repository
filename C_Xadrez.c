@@ -29,6 +29,8 @@ void print_tab (tabuleiro tab);
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca);
 peca remover_peca (tabuleiro *tab, posicao pos);
 peca info_peca (tabuleiro tab, posicao pos);
+int peca_inimiga (peca p, char jogador_atual);
+int null_or_enemy (tabuleiro tab, posicao pos, char jogador_atual);
 
 void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *jogador_atual);
 peca executa_movimento (tabuleiro *tab, posicao origem, posicao destino);
@@ -155,9 +157,9 @@ void print_tab (tabuleiro tab)
     int i, j;
     
     //limpar console mobile
-    printf("\e[1;1H\e[2J\n");
+    //printf("\e[1;1H\e[2J\n");
     //limpar console windows
-    //system ("cls");
+    system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -302,7 +304,7 @@ int origem_valida (tabuleiro tab, posicao pos, char jogador_atual)
 
 int destino_valido (posicao pos, int movimentos_possiveis[8][8])
 {
-    if (pos.linha >= 0 && pos.linha < 8 && pos.coluna >= 0 && pos.coluna < 8)
+    if (!fora_dos_limites(pos))
     {
         if (movimentos_possiveis[pos.linha][pos.coluna] != 0)
             return 1;
@@ -391,244 +393,193 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
 void movimentos_torre (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     int i;
+    peca torre = tab.mat[pos.linha][pos.coluna];
 
     //direita
     for (i = 1; i < (8 - pos.coluna); i++)
     {
         posicao pos_teste = {pos.linha, pos.coluna + i};
-        peca torre = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != torre.cor)  
+        else if(peca_inimiga(peca_teste, torre.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 
     //esquerda
     for (i = 1; i <= pos.coluna; i++)
     {
         posicao pos_teste = {pos.linha, pos.coluna - i};
-        peca torre = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != torre.cor)  
+        else if(peca_inimiga(peca_teste, torre.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 
     //cima
     for (i = 1; i <= pos.linha; i++)
     {
         posicao pos_teste = {pos.linha - i, pos.coluna};
-        peca torre = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != torre.cor)  
+        else if(peca_inimiga(peca_teste, torre.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 
     //baixo
     for (i = 1; i < (8 - pos.linha); i++)
     {
         posicao pos_teste = {pos.linha + i, pos.coluna};
-        peca torre = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != torre.cor)  
+        else if(peca_inimiga(peca_teste, torre.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 }
 
 void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
+    peca cavalo = tab.mat[pos.linha][pos.coluna];
+
     //2cima 1direita
     posicao pos_teste = {pos.linha - 2, pos.coluna + 1};
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
-            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
-    } 
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
      
     //1cima 2direita  
     pos_teste = (posicao) {pos.linha - 1, pos.coluna + 2};   
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
 
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
-            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1; 
-    }
     //1baixo 2direita   
     pos_teste = (posicao) {pos.linha + 1, pos.coluna + 2};
     if (!fora_dos_limites(pos_teste))
-    {    
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }
     
     //2baixo 1direita  
     pos_teste = (posicao) {pos.linha + 2, pos.coluna + 1}; 
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }
 
     //2baixo 1esquerda
     pos_teste = (posicao) {pos.linha + 2, pos.coluna - 1}; 
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }
     
     //1baixo 2esquerda
     pos_teste = (posicao) {pos.linha + 1, pos.coluna - 2}; 
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }        
 
     //1cima 2esquerda
     pos_teste = (posicao) {pos.linha - 1, pos.coluna - 2}; 
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }    
     
     //2cima 1esquerda
     pos_teste = (posicao) {pos.linha - 2, pos.coluna - 1};
     if (!fora_dos_limites(pos_teste))
-    {
-        peca cavalo = tab.mat[pos.linha][pos.coluna];
-        peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-
-        if(peca_teste.nome == '-' || peca_teste.cor != cavalo.cor)   
+        if (null_or_enemy(tab, pos_teste, cavalo.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }    
 }
 
 void movimentos_bispo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     int i, j;
+    peca bispo = tab.mat[pos.linha][pos.coluna];
     
     //cima - direita
     for (i = 1, j = 1; i <= pos.linha && j < (8 - pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha - i, pos.coluna + j};
-        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != bispo.cor)  
+        else if(peca_inimiga(peca_teste, bispo.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
     
     //baixo - direita
     for (i = 1, j = 1; i < (8 - pos.linha) && j < (8 - pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha + i, pos.coluna + j};
-        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != bispo.cor)  
+        else if(peca_inimiga(peca_teste, bispo.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 
     //baixo - esquerda
     for (i = 1, j = 1; i < (8 - pos.linha) && j <= pos.coluna; i++, j++)
     {
         posicao pos_teste = {pos.linha + i, pos.coluna - j};
-        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != bispo.cor)  
+        else if(peca_inimiga(peca_teste, bispo.cor))
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 
     //cima - esquerda
     for (i = 1, j = 1; i <= (pos.linha) && j <= (pos.coluna); i++, j++)
     {
         posicao pos_teste = {pos.linha - i, pos.coluna - j};
-        peca bispo = tab.mat[pos.linha][pos.coluna];
         peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
 
         if (peca_teste.nome == '-')
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        else if(peca_teste.cor != bispo.cor)  
+        else if(peca_inimiga(peca_teste, bispo.cor))  
         {   
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
             break;
         }
-        else
-            break;
+        else break;
     }
 }
 
@@ -656,19 +607,13 @@ void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]
         //ataca caso haja inimigo na diagonal
         pos_teste = (posicao) {pos.linha - 1, pos.coluna - 1};
         if (!fora_dos_limites(pos_teste))
-        {
-            peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-            if (peca_teste.nome != '-' && peca_teste.cor != 'b')    
+            if (null_or_enemy(tab, pos_teste, peao.cor))
                 movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        } 
 
         pos_teste = (posicao) {pos.linha - 1, pos.coluna + 1};
         if (!fora_dos_limites(pos_teste))
-        {
-            peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-            if (peca_teste.nome != '-' && peca_teste.cor != 'b')    
+            if (null_or_enemy(tab, pos_teste, peao.cor))
                 movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        }   
     }
     else
     {
@@ -688,41 +633,67 @@ void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]
 
         pos_teste = (posicao) {pos.linha + 1, pos.coluna - 1};
         if (!fora_dos_limites(pos_teste))
-        {
-            peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-            if (peca_teste.nome != '-' && peca_teste.cor != 'p')    
-                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        }   
+            if (null_or_enemy(tab, pos_teste, peao.cor))
+                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
         
         pos_teste = (posicao) {pos.linha + 1, pos.coluna + 1};
         if (!fora_dos_limites(pos_teste))
-        {
-            peca peca_teste = tab.mat[pos_teste.linha][pos_teste.coluna];
-            if (peca_teste.nome != '-' && peca_teste.cor != 'p')    
-                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-        }    
+            if (null_or_enemy(tab, pos_teste, peao.cor))
+                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;    
     }
 }   
 
 void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
     peca rei = info_peca(tab, pos);
-    posicao pos_teste = {pos.linha - 1, pos.coluna + 1};
+    posicao pos_teste = {pos.linha - 1, pos.coluna};
     if (!fora_dos_limites(pos_teste))
-    {
-        peca peca_teste = info_peca(tab, pos_teste);
-        if (peca_teste.nome == '-' || peca_teste.cor != rei.cor)
+        if (null_or_enemy(tab, pos_teste, rei.cor))
             movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
-    }
+
+    pos_teste = (posicao){pos.linha - 1, pos.coluna + 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha, pos.coluna + 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha + 1, pos.coluna + 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha + 1, pos.coluna};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha + 1, pos.coluna - 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha, pos.coluna - 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+
+    pos_teste = (posicao){pos.linha - 1, pos.coluna - 1};
+    if (!fora_dos_limites(pos_teste))
+        if (null_or_enemy(tab, pos_teste, rei.cor))
+            movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
 }
     
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
 {
     int i, j;
     //limpar console mobile
-    printf("\e[1;1H\e[2J\n");
+    //printf("\e[1;1H\e[2J\n");
     //limpar console windows
-    //system ("cls");
+    system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -779,13 +750,15 @@ void troca_jogador_atual (char *jogador_atual)
         *jogador_atual = 'b';
 }
 
-int peca_inimiga (tabuleiro tab, posicao pos, char jogador_atual)
+int peca_inimiga (peca p, char jogador_atual)
 {
-    if (tab.mat[pos.linha][pos.coluna].nome != '-')
-        if (tab.mat[pos.linha][pos.coluna].cor != jogador_atual)
-            return 1;
-            
-    return 0;       
+    return (p.nome != '-' && p.cor != jogador_atual); 
+}
+
+int null_or_enemy (tabuleiro tab, posicao pos, char jogador_atual)
+{
+    peca peca_teste = tab.mat[pos.linha][pos.coluna];
+    return (peca_teste.nome == '-' || peca_inimiga(peca_teste, jogador_atual));
 }
 
 int is_king (peca peca)
@@ -831,7 +804,7 @@ int esta_em_xeque (tabuleiro *tab, char jogador_atual)
         {
             for (j = 0; j < 8; j++)
             {
-                if (peca_inimiga(*tab, (posicao){i, j}, jogador_atual))
+                if (peca_inimiga(tab->mat[i][j], jogador_atual))
                     movimentos_possiveis (*tab, (posicao){i, j}, matriz_teste, 0);
             }
         }
@@ -863,7 +836,7 @@ int teste_xeque_mate (tabuleiro *tab, char *jogador_atual)
     {
         for (j = 0; j < 8; j++)
         {
-            if (!peca_inimiga(*tab, (posicao){i,j}, *jogador_atual))
+            if (!peca_inimiga(tab->mat[i][j], *jogador_atual))
             {
                 movimentos_possiveis (*tab, (posicao){i,j}, matriz_teste, 1);
                 if (teste_sair_xeque (tab, matriz_teste, (posicao){i,j}, jogador_atual))
