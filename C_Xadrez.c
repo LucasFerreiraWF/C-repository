@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 int IS_PLAYING = 1;
+int PLATAFORMA = 0;
 
 typedef struct posicao
 {
@@ -62,6 +63,9 @@ int main ()
 {
     tabuleiro tab = {8, 8};
     char jogador_atual = 'b';
+    
+    printf ("\e[1mMudar para mobile? [1]/[0]\e[0m;\n");
+    scanf ("%d", &PLATAFORMA);
 
     clear_tab (&tab);
     montar_tabuleiro (&tab);
@@ -156,10 +160,9 @@ void print_tab (tabuleiro tab)
 {
     int i, j;
     
-    //limpar console mobile
-    //printf("\e[1;1H\e[2J\n");
-    //limpar console windows
-    system ("cls");
+    if (PLATAFORMA == 1) 
+        printf("\e[1;1H\e[2J\n");
+    else system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -606,13 +609,15 @@ void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]
         
         //ataca caso haja inimigo na diagonal
         pos_teste = (posicao) {pos.linha - 1, pos.coluna - 1};
+        peca peca_teste = info_peca(tab, pos_teste);
         if (!fora_dos_limites(pos_teste))
-            if (null_or_enemy(tab, pos_teste, peao.cor))
+            if (peca_inimiga(peca_teste, peao.cor))
                 movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
 
         pos_teste = (posicao) {pos.linha - 1, pos.coluna + 1};
+        peca_teste = info_peca(tab, pos_teste);
         if (!fora_dos_limites(pos_teste))
-            if (null_or_enemy(tab, pos_teste, peao.cor))
+            if (peca_inimiga(peca_teste, peao.cor))
                 movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
     else
@@ -632,14 +637,16 @@ void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]
             }
 
         pos_teste = (posicao) {pos.linha + 1, pos.coluna - 1};
+        peca peca_teste = info_peca(tab, pos_teste);
         if (!fora_dos_limites(pos_teste))
-            if (null_or_enemy(tab, pos_teste, peao.cor))
-                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;   
-        
+            if (peca_inimiga(peca_teste, peao.cor))
+                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
+   
         pos_teste = (posicao) {pos.linha + 1, pos.coluna + 1};
+        peca_teste = info_peca(tab, pos_teste);
         if (!fora_dos_limites(pos_teste))
-            if (null_or_enemy(tab, pos_teste, peao.cor))
-                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;    
+            if (peca_inimiga(peca_teste, peao.cor))
+                movimentos_possiveis[pos_teste.linha][pos_teste.coluna] = 1;
     }
 }   
 
@@ -690,10 +697,10 @@ void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
 {
     int i, j;
-    //limpar console mobile
-    //printf("\e[1;1H\e[2J\n");
-    //limpar console windows
-    system ("cls");
+     
+    if (PLATAFORMA == 1) 
+        printf("\e[1;1H\e[2J\n");
+    else system ("cls");
 
     for (i = 0; i < tab.linhas; i++)
     {
@@ -704,12 +711,12 @@ void print_movimentos_possiveis (tabuleiro tab, int movimentos_possiveis[8][8])
             if (movimentos_possiveis[i][j])
             {
                 if (p.cor == 'b' || p.nome == peca_null.nome)
-                {
+                {   //char padrao - background cinza
                     printf("\e[0;100m%c ", p.nome);
                     printf("\e[0m");
                 }
                 else
-                {
+                {   //char amarelo - background cinza
                     printf("\e[33;100m%c ", p.nome);
                     printf("\e[0m");
                 }
