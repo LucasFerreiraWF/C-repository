@@ -63,8 +63,7 @@ int main ()
 {
     tabuleiro tab = {8, 8};
     char jogador_atual = 'b';
-    
-    printf ("\e[1mMudar para mobile? [1]/[0]\e[0m;\n");
+    printf ("Mudar para mobile? [1]/[0]\n");
     scanf ("%d", &PLATAFORMA);
 
     clear_tab (&tab);
@@ -92,20 +91,6 @@ int main ()
         int movep[tab.linhas][tab.colunas];
 
         movimentos_possiveis(tab, to_position(origem), movep, 1);
-
-        //Del later
-        /*printf ("\n\n");
-        int i, j;
-        for (i = 0; i < 8; i++)
-        {
-            printf ("(%d) ", 8 - i);
-            for (j = 0; j < 8; j++)
-            {
-                printf ("%d  ", movep[i][j]);
-            }
-            printf("\n");
-        }
-        printf ("    a  b  c  d  e  f  g  h\n\n");*/
         
         if (matriz_vazia(movep))
             confirmacao ("\n\nNao ha movimentos possiveis para a peca selecionada!\n\n");
@@ -797,15 +782,8 @@ int existe_rei (tabuleiro tab, char jogador_atual)
 int esta_em_xeque (tabuleiro *tab, char jogador_atual)
 {
     int matriz_teste[8][8];
-    limpar_matriz(matriz_teste);//limpar matriz
+    limpar_matriz(matriz_teste);
     int i, j;
-
-        /*if (!existe_rei(*tab, jogador_atual))
-        {
-            IS_PLAYING = 0;
-            confirmacao ("Rei Faltando");
-            return 0;
-        }*/
 
         for (i = 0; i < 8; i++)
         {
