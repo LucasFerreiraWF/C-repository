@@ -27,6 +27,7 @@ void confirmacao (char string[100]);
 
 void clear_tab (tabuleiro *tab);
 void print_tab (tabuleiro tab);
+void print_peca(peca p);
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca);
 peca remover_peca (tabuleiro *tab, posicao pos);
 peca info_peca (tabuleiro tab, posicao pos);
@@ -232,15 +233,16 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
         desfaz_movimento (tab, origem, destino, peca_capturada);
         return;
     }
-    if(promocao_possivel(*tab, origem))
-        promover(tab, origem);
+
+    if(promocao_possivel(*tab, destino))
+        promover(tab, destino);
 
     troca_jogador_atual (jogador_atual);
 }
 
 void montar_tabuleiro (tabuleiro *tab)
 {
-    //colocar_peca (tab, to_position("a1"), (peca) {'T', 'b', 0});
+    colocar_peca (tab, to_position("a1"), (peca) {'T', 'b', 0});
     colocar_peca (tab, to_position("b1"), (peca) {'C', 'b', 0});
     colocar_peca (tab, to_position("c1"), (peca) {'B', 'b', 0});
     colocar_peca (tab, to_position("e1"), (peca) {'R', 'b', 0});
@@ -248,7 +250,7 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, to_position("f1"), (peca) {'B', 'b', 0});
     colocar_peca (tab, to_position("g1"), (peca) {'C', 'b', 0});
     colocar_peca (tab, to_position("h1"), (peca) {'T', 'b', 0});
-    //colocar_peca (tab, to_position("a2"), (peca) {'P', 'b', 0});
+    colocar_peca (tab, to_position("a2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("b2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("c2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("d2"), (peca) {'P', 'b', 0});
@@ -258,7 +260,7 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, to_position("h2"), (peca) {'P', 'b', 0});
 
     colocar_peca (tab, to_position("a8"), (peca) {'T', 'p', 0});
-    //colocar_peca (tab, to_position("b8"), (peca) {'C', 'p', 0});
+    colocar_peca (tab, to_position("b8"), (peca) {'C', 'p', 0});
     colocar_peca (tab, to_position("c8"), (peca) {'B', 'p', 0});
     colocar_peca (tab, to_position("e8"), (peca) {'R', 'p', 0});
     colocar_peca (tab, to_position("d8"), (peca) {'D', 'p', 0});
@@ -266,7 +268,7 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, to_position("g8"), (peca) {'C', 'p', 0});
     colocar_peca (tab, to_position("h8"), (peca) {'T', 'p', 0});
     colocar_peca (tab, to_position("a7"), (peca) {'P', 'p', 0});
-    //colocar_peca (tab, to_position("b7"), (peca) {'P', 'p', 0});
+    colocar_peca (tab, to_position("b7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("c7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("d7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("e7"), (peca) {'P', 'p', 0});
@@ -888,13 +890,9 @@ int promocao_possivel(tabuleiro tab, posicao pos)
     peca p = tab.mat[pos.linha][pos.coluna];
 
     if(p.nome == 'P')
-    {
-        if(p.cor == 'b')
-            return pos.linha == 7;
-            
-        else
-            return pos.linha == 0;
-    }
+        if(p.qtd_movimentos > 0)
+            if (pos.linha == 0 || pos.linha == 7)
+            return 1;
     return 0;
 }
 
@@ -902,10 +900,13 @@ void promover(tabuleiro *tab, posicao pos)
 {
     printf("\nPromover peao\nPara qual peca deseja promover? [P, T, C, B, D]\n");
     char c;
+    setbuf(stdin, NULL);
     scanf("%c", &c);
 
-    if (c == 'P' || c == 'T' || c == 'C' || c == 'B' || c == 'D' )
+    if (c == 'P' || c == 'T' || c == 'C' || c == 'B' || c == 'D')
         tab->mat[pos.linha][pos.coluna].nome = c;
+    else if (c == 'p' || c == 't' || c == 'c' || c == 'b' || c == 'd')
+        tab->mat[pos.linha][pos.coluna].nome = (c - 32);
     else
     {
         tab->mat[pos.linha][pos.coluna].nome = 'D';
