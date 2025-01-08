@@ -63,6 +63,7 @@ void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 int en_passant_possivel(tabuleiro tab, posicao pos);
 int promocao_possivel(tabuleiro tab, posicao pos);
 void promover(tabuleiro *tab, posicao pos);
+void roque(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
 int main ()
 {
@@ -371,6 +372,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
     case 'D':
         movimentos_torre (tab, pos, movimentos_possiveis);
         movimentos_bispo (tab, pos, movimentos_possiveis);
+        roque (tab, pos, movimentos_possiveis);
         break;    
         
     case 'P':
@@ -911,5 +913,26 @@ void promover(tabuleiro *tab, posicao pos)
     {
         tab->mat[pos.linha][pos.coluna].nome = 'D';
         confirmacao("Promocao Invalida! Promovendo para Dama...");  
+    }
+}
+
+void roque(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+{
+    peca dama = tab.mat[pos.linha][pos.coluna];
+
+    if (dama.qtd_movimentos == 0)
+    {
+        peca t1 = tab.mat[pos.linha][pos.coluna - 3];
+        peca t2 = tab.mat[pos.linha][pos.coluna + 4];
+
+        if (t1.nome != '-' && t1.qtd_movimentos == 0)
+        {
+            //nao ha peças entre a dama e a torre => roque pequeno disponivel
+        }
+
+        if (t2.nome != '-' && t2.qtd_movimentos == 0)
+        {
+            //msma verificacao
+        } 
     }
 }
