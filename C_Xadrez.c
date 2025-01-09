@@ -2,6 +2,7 @@
 #include <stdlib.h>
 int IS_PLAYING = 1;
 int PLATAFORMA = 0;
+int TIPO_DE_JOGADA = 1; //[1, 2, 3] [normal, roque, en_passant]
 
 typedef struct posicao
 {
@@ -63,7 +64,7 @@ void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 int en_passant_possivel(tabuleiro tab, posicao pos);
 int promocao_possivel(tabuleiro tab, posicao pos);
 void promover(tabuleiro *tab, posicao pos);
-void roque(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
+void roque_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
 int main ()
 {
@@ -235,6 +236,12 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
         return;
     }
 
+    if (TIPO_DE_JOGADA == 2)
+    {
+        tab->mat[origem.linha][origem.coluna] = peca_capturada;
+        TIPO_DE_JOGADA = 1;
+    }
+
     if(promocao_possivel(*tab, destino))
         promover(tab, destino);
 
@@ -307,6 +314,7 @@ int destino_valido (posicao pos, int movimentos_possiveis[8][8])
             return 1;
     }
 
+    TIPO_DE_JOGADA = movimentos_possiveis[pos.linha][pos.coluna];
     return 0;
 }
 
@@ -372,7 +380,6 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
     case 'D':
         movimentos_torre (tab, pos, movimentos_possiveis);
         movimentos_bispo (tab, pos, movimentos_possiveis);
-        roque (tab, pos, movimentos_possiveis);
         break;    
         
     case 'P':
@@ -381,6 +388,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         
     case 'R':
         movimentos_rei (tab, pos, movimentos_possiveis);
+        roque_possivel (tab, pos, movimentos_possiveis);
         break;   
 
     default:
@@ -916,23 +924,26 @@ void promover(tabuleiro *tab, posicao pos)
     }
 }
 
-void roque(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
+void roque_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    peca dama = tab.mat[pos.linha][pos.coluna];
+    peca rei = tab.mat[pos.linha][pos.coluna];
 
-    if (dama.qtd_movimentos == 0)
+    if (rei.qtd_movimentos == 0)
     {
-        peca t1 = tab.mat[pos.linha][pos.coluna - 3];
-        peca t2 = tab.mat[pos.linha][pos.coluna + 4];
+        peca t1 = tab.mat[pos.linha][pos.coluna + 3];
+        peca t2 = tab.mat[pos.linha][pos.coluna - 4];
 
         if (t1.nome != '-' && t1.qtd_movimentos == 0)
         {
             //nao ha peças entre a dama e a torre => roque pequeno disponivel
+            if (tab.mat[pos.linha][pos.coluna + 1].nome == '-' && tab.mat[pos.linha][pos.coluna + 2].nome == '-')
+            movimentos_possiveis[pos.linha][pos.coluna + 3] = 2;
         }
 
         if (t2.nome != '-' && t2.qtd_movimentos == 0)
         {
-            //msma verificacao
+            if (tab.mat[pos.linha][pos.coluna - 1].nome == '-' && tab.mat[pos.linha][pos.coluna - 2].nome == '-' && tab.mat[pos.linha][pos.coluna - 3].nome == '-')
+            movimentos_possiveis[pos.linha][pos.coluna - 4] = 2;
         } 
     }
 }
