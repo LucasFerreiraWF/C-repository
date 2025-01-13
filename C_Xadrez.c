@@ -184,7 +184,6 @@ void print_tab (tabuleiro tab)
 void colocar_peca (tabuleiro *tab, posicao pos, peca peca)
 {
     tab->mat[pos.linha][pos.coluna] = peca;
-    //peca.pos = pos;
 }
 
 peca remover_peca (tabuleiro *tab, posicao pos)
@@ -238,7 +237,7 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
 
     if (TIPO_DE_JOGADA == 2)
     {
-        tab->mat[origem.linha][origem.coluna] = peca_capturada;
+        colocar_peca(tab, origem, peca_capturada);
         TIPO_DE_JOGADA = 1;
     }
 
@@ -251,12 +250,12 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
 void montar_tabuleiro (tabuleiro *tab)
 {
     colocar_peca (tab, to_position("a1"), (peca) {'T', 'b', 0});
-    colocar_peca (tab, to_position("b1"), (peca) {'C', 'b', 0});
-    colocar_peca (tab, to_position("c1"), (peca) {'B', 'b', 0});
+    //colocar_peca (tab, to_position("b1"), (peca) {'C', 'b', 0});
+    //colocar_peca (tab, to_position("c1"), (peca) {'B', 'b', 0});
+    //colocar_peca (tab, to_position("d1"), (peca) {'D', 'b', 0});
     colocar_peca (tab, to_position("e1"), (peca) {'R', 'b', 0});
-    colocar_peca (tab, to_position("d1"), (peca) {'D', 'b', 0});
-    colocar_peca (tab, to_position("f1"), (peca) {'B', 'b', 0});
-    colocar_peca (tab, to_position("g1"), (peca) {'C', 'b', 0});
+    //colocar_peca (tab, to_position("f1"), (peca) {'B', 'b', 0});
+    //colocar_peca (tab, to_position("g1"), (peca) {'C', 'b', 0});
     colocar_peca (tab, to_position("h1"), (peca) {'T', 'b', 0});
     colocar_peca (tab, to_position("a2"), (peca) {'P', 'b', 0});
     colocar_peca (tab, to_position("b2"), (peca) {'P', 'b', 0});
@@ -268,12 +267,12 @@ void montar_tabuleiro (tabuleiro *tab)
     colocar_peca (tab, to_position("h2"), (peca) {'P', 'b', 0});
 
     colocar_peca (tab, to_position("a8"), (peca) {'T', 'p', 0});
-    colocar_peca (tab, to_position("b8"), (peca) {'C', 'p', 0});
-    colocar_peca (tab, to_position("c8"), (peca) {'B', 'p', 0});
+    //colocar_peca (tab, to_position("b8"), (peca) {'C', 'p', 0});
+    //colocar_peca (tab, to_position("c8"), (peca) {'B', 'p', 0});
+    //colocar_peca (tab, to_position("d8"), (peca) {'D', 'p', 0});
     colocar_peca (tab, to_position("e8"), (peca) {'R', 'p', 0});
-    colocar_peca (tab, to_position("d8"), (peca) {'D', 'p', 0});
-    colocar_peca (tab, to_position("f8"), (peca) {'B', 'p', 0});
-    colocar_peca (tab, to_position("g8"), (peca) {'C', 'p', 0});
+    //colocar_peca (tab, to_position("f8"), (peca) {'B', 'p', 0});
+    //colocar_peca (tab, to_position("g8"), (peca) {'C', 'p', 0});
     colocar_peca (tab, to_position("h8"), (peca) {'T', 'p', 0});
     colocar_peca (tab, to_position("a7"), (peca) {'P', 'p', 0});
     colocar_peca (tab, to_position("b7"), (peca) {'P', 'p', 0});
@@ -311,10 +310,11 @@ int destino_valido (posicao pos, int movimentos_possiveis[8][8])
     if (!fora_dos_limites(pos))
     {
         if (movimentos_possiveis[pos.linha][pos.coluna] != 0)
+        {
+            TIPO_DE_JOGADA = movimentos_possiveis[pos.linha][pos.coluna];
             return 1;
+        }
     }
-
-    TIPO_DE_JOGADA = movimentos_possiveis[pos.linha][pos.coluna];
     return 0;
 }
 
