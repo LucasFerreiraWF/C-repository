@@ -239,15 +239,13 @@ void realiza_jogada (tabuleiro *tab, posicao origem, posicao destino, char *joga
     {
         if (destino.coluna - origem.coluna > 0)
         {
-            colocar_peca(tab, (posicao){origem.linha, origem.coluna + 1}, peca_capturada);
-            peca temp = executa_movimento(tab, destino, (posicao){destino.linha, destino.coluna - 1});
-            //colocar_peca(tab, (posicao){destino.linha, destino.coluna - 1}, tab->mat[destino.linha][destino.coluna]);
+            colocar_peca(tab, (posicao){origem.linha, origem.coluna + 1}, peca_capturada);//move torre
+            peca temp = executa_movimento(tab, destino, (posicao){destino.linha, destino.coluna - 1});//move rei
         }
         else
         {
             colocar_peca(tab, (posicao){origem.linha, origem.coluna - 1}, peca_capturada);
             peca temp = executa_movimento (tab, destino, (posicao){destino.linha, destino.coluna + 2});
-            //colocar_peca(tab, (posicao){destino.linha, destino.coluna + 2}, tab->mat[destino.linha][destino.coluna]);
         }
         TIPO_DE_JOGADA = 1;
     }
