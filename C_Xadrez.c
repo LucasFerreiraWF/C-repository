@@ -61,7 +61,7 @@ void movimentos_cavalo (tabuleiro tab, posicao pos, int movimentos_possiveis[8][
 void movimentos_peao (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 void movimentos_rei (tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 
-int en_passant_possivel(tabuleiro tab, posicao pos);
+int en_passant_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
 int promocao_possivel(tabuleiro tab, posicao pos);
 void promover(tabuleiro *tab, posicao pos);
 void roque_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8]);
@@ -393,6 +393,7 @@ void movimentos_possiveis (tabuleiro tab, posicao pos, int movimentos_possiveis[
         
     case 'P':
         movimentos_peao (tab, pos, movimentos_possiveis);
+        en_passant_possivel(tab, pos, movimentos_possiveis);
         break;
         
     case 'R':
@@ -893,12 +894,48 @@ int fora_dos_limites (posicao pos)
     return 0;    
 }
 
-int en_passant_possivel(tabuleiro tab, posicao pos)
+int en_passant_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    peca peao_inimigo = tab.mat[pos.linha][pos.coluna];
-    if (peao_inimigo.qtd_movimentos == 1)
+    peca peao = tab.mat[pos.linha][pos.coluna];
+    if (peao.cor == 'b')
     {
-        
+        if (pos.linha != 3) return 0;
+
+        posicao direita = {pos.linha, pos.coluna + 1};
+        if (!fora_dos_limites(direita))
+        {
+            peca inimigo_dir = tab.mat[direita.linha][direita.coluna];
+            if (inimigo_dir.nome == 'P' && inimigo_dir.qtd_movimentos == 1)
+            movimentos_possiveis[direita.linha][direita.coluna] = 1;
+        }
+
+        posicao esquerda = {pos.linha, pos.coluna - 1};
+        if (!fora_dos_limites(esquerda))
+        {
+            peca inimigo_esq = tab.mat[esquerda.linha][esquerda.coluna];
+            if (inimigo_esq.nome == 'P' && inimigo_esq.qtd_movimentos == 1)
+            movimentos_possiveis[esquerda.linha][esquerda.coluna] = 1;
+        }
+    }
+    else
+    {
+        if (pos.linha != 4) return 0;
+
+        posicao direita = {pos.linha, pos.coluna + 1};
+        if (!fora_dos_limites(direita))
+        {
+            peca inimigo_dir = tab.mat[direita.linha][direita.coluna];
+            if (inimigo_dir.nome == 'P' && inimigo_dir.qtd_movimentos == 1)
+            movimentos_possiveis[direita.linha][direita.coluna] = 1;
+        }
+
+        posicao esquerda = {pos.linha, pos.coluna - 1};
+        if (!fora_dos_limites(esquerda))
+        {
+            peca inimigo_esq = tab.mat[esquerda.linha][esquerda.coluna];
+            if (inimigo_esq.nome == 'P' && inimigo_esq.qtd_movimentos == 1)
+            movimentos_possiveis[esquerda.linha][esquerda.coluna] = 1;
+        }
     }
 
     return 0;
