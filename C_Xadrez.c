@@ -1,3 +1,5 @@
+//Implementar IA básica?
+
 #include <stdio.h>
 #include <stdlib.h>
 int IS_PLAYING = 1;
@@ -972,21 +974,28 @@ void promover(tabuleiro *tab, posicao pos)
 
 void roque_possivel(tabuleiro tab, posicao pos, int movimentos_possiveis[8][8])
 {
-    peca rei = tab.mat[pos.linha][pos.coluna];
+    if (fora_dos_limites(pos) || !is_king(tab.mat[pos.linha][pos.coluna])) 
+        return;
 
-    if (rei.qtd_movimentos == 0)
+    peca rei = tab.mat[pos.linha][pos.coluna];
+    if (rei.qtd_movimentos > 0 || esta_em_xeque(&tab, rei.cor))
+        return;
+
+    if (!fora_dos_limites((posicao){pos.linha, pos.coluna + 3}))
     {
         peca t1 = tab.mat[pos.linha][pos.coluna + 3];
-        peca t2 = tab.mat[pos.linha][pos.coluna - 4];
-
-        if (t1.nome != '-' && t1.qtd_movimentos == 0)
+        if (t1.nome == 'T' && t1.qtd_movimentos == 0 && t1.cor == rei.cor)
         {
             //nao ha peças entre a dama e a torre => roque pequeno disponivel
             if (tab.mat[pos.linha][pos.coluna + 1].nome == '-' && tab.mat[pos.linha][pos.coluna + 2].nome == '-')
             movimentos_possiveis[pos.linha][pos.coluna + 3] = 2;
         }
+    }
 
-        if (t2.nome != '-' && t2.qtd_movimentos == 0)
+    if (!fora_dos_limites((posicao){pos.linha, pos.coluna - 4}))
+    {
+        peca t2 = tab.mat[pos.linha][pos.coluna - 4];
+        if (t2.nome == 'T' && t2.qtd_movimentos == 0 && t2.cor == rei.cor)
         {
             if (tab.mat[pos.linha][pos.coluna - 1].nome == '-' && tab.mat[pos.linha][pos.coluna - 2].nome == '-' && tab.mat[pos.linha][pos.coluna - 3].nome == '-')
             movimentos_possiveis[pos.linha][pos.coluna - 4] = 2;
